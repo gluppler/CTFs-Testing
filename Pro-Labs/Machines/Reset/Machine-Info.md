@@ -1,0 +1,1 @@
+Reset is an Easy difficulty Linux machine which showcases abusing a password reset functionality in a web application following a log poisoning attack, to achieve Remote Code Execution. For privilege escalation, Rservices are abused, then a detached tmux session is used to abuse sudo privileges on nano text editor and execute commands as the root user.

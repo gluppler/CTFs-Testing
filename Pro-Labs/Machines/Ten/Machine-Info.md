@@ -1,0 +1,1 @@
+Ten is a Hard difficulty Linux machine that simulates a misconfigured shared-hosting environment. Players enumerate a public sign-up portal that provisions FTP accounts, abuse weak MySQL/FTP integration to pivot into a real local user, and finally achieve root by poisoning an etcd-driven Apache configuration reload.

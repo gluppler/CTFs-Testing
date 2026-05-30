@@ -1,0 +1,14 @@
+#!/usr/bin/expect -f
+set timeout 30
+set cmd [lindex $argv 0]
+set sliver_bin "/Users/gluppler/sliver/sliver-client"
+set config_file [lindex $argv 1]
+
+spawn $sliver_bin console
+expect "sliver >"
+send "$cmd\r"
+expect {
+    "sliver >" { send "exit\r" }
+    timeout { send "exit\r" }
+}
+expect eof

@@ -1,0 +1,32 @@
+#!/bin/bash
+# c2-check - Verify environment, show beacons + sessions
+# Usage: c2-check [beacon_id]
+C2="$(dirname "$0")/c2"
+BEACON="${1:-}"
+
+# Check tmux session
+if ! tmux has-session -t sliver 2>/dev/null; then
+    echo "[!] tmux session 'sliver' not running. Start it with:"
+    echo "    tmux new-session -s sliver"
+    exit 1
+fi
+
+# Check c2 binary
+if ! $C2 help >/dev/null 2>&1; then
+    echo "[!] c2 helper not working. Check PATH or reinstall Sliver client."
+    exit 1
+fi
+
+echo "=== Beacons ==="
+$C2 beacons
+
+echo ""
+echo "=== Sessions ==="
+$C2 sessions
+
+echo ""
+echo "=== Active Beacon ==="
+if [ -n "$BEACON" ]; then
+    $C2 use "$BEACON" >/dev/null 2>&1
+fi
+$C2 raw "beacons" 2>/dev/null | perl -ne 'print if /sliver \(/; print "  (none selected)\n" unless /sliver \(/' | head -4

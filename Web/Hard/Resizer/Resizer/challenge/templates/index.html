@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>resizer - Image Resizing Service</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Press Start 2P', cursive;
+            background: #000000;
+            background-attachment: fixed;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            padding-top: 70px;
+            color: #00ff00;
+            overflow-x: hidden;
+        }
+        
+        
+        .container {
+            background: #000000;
+            border: 3px solid #00ff00;
+            padding: 50px;
+            max-width: 700px;
+            width: 100%;
+            position: relative;
+            z-index: 2;
+            text-align: center;
+        }
+        
+        
+        .title {
+            font-size: 32px;
+            color: #00ff00;
+            margin-bottom: 5px;
+            animation: flicker 0.15s infinite;
+        }
+        
+        @keyframes flicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+        
+        .subtitle {
+            font-size: 12px;
+            color: #00ff00;
+            margin-top: 8px;
+        }
+        
+        
+        .upload-form {
+            margin-bottom: 20px;
+        }
+        
+        .file-input-wrapper {
+            position: relative;
+            margin-bottom: 15px;
+        }
+        
+        input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            border: 3px solid #00ff00;
+            background: #000000;
+            color: #00ff00;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.1s;
+        }
+        
+        input[type="file"]::file-selector-button {
+            background: #00ff00;
+            color: #001a1f;
+            border: 2px solid #00ff00;
+            padding: 5px 10px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 10px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        input[type="file"]:hover {
+            border-color: #00ff00;
+        }
+        
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #00ff00;
+            color: #001a1f;
+            border: 3px solid #00ff00;
+            font-size: 14px;
+            font-weight: bold;
+            font-family: 'Press Start 2P', cursive;
+            cursor: pointer;
+            transition: all 0.1s;
+            box-shadow: inset 0 0 0 2px #00ff00;
+            text-transform: uppercase;
+        }
+        
+        button:hover {
+            background: #00ff00;
+            border-color: #00ff00;
+            color: #001a1f;
+        }
+        
+        button:active {
+            transform: translate(2px, 2px);
+        }
+        
+        button:disabled {
+            background: #666;
+            color: #333;
+            border-color: #666;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+        
+        .flash-messages {
+            margin-bottom: 20px;
+        }
+        
+        .alert {
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 2px solid;
+            font-size: 12px;
+        }
+        
+        .alert-success {
+            background: rgba(0, 255, 0, 0.1);
+            color: #00ff00;
+            border-color: #00ff00;
+        }
+        
+        .alert-error {
+            background: rgba(255, 0, 0, 0.1);
+            color: #ff0000;
+            border-color: #ff0000;
+        }
+        
+        .level-up {
+            animation: levelUp 0.5s ease-out;
+        }
+        
+        @keyframes levelUp {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .separator {
+            border-top: 2px dashed #00ff00;
+            margin: 15px 0;
+            opacity: 0.5;
+        }
+        
+        .info-text {
+            color: #00ff00;
+            font-size: 10px;
+            margin-top: 10px;
+            text-align: center;
+            border-top: 1px solid #00ff00;
+            padding-top: 10px;
+        }
+        
+        .pixel-icon {
+            display: inline-block;
+            margin: 0 5px;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Animated side decorations */
+        .pixel-left {
+            display: none;
+        }
+        
+        .pixel-right {
+            display: none;
+        }
+        
+        /* Container hover effect */
+        .container:hover {
+            animation: glow-pulse 0.6s ease-out;
+        }
+        
+        @keyframes glow-pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.95; }
+            100% { opacity: 1; }
+        }
+        
+        /* Button bounce effect */
+        button:hover {
+            animation: button-bounce 0.4s ease-out;
+        }
+        
+        @keyframes button-bounce {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        /* Navigation Bar */
+        nav {
+            background: #000000;
+            border-bottom: 3px solid #00ff00;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 100;
+        }
+        
+        .nav-brand {
+            font-size: 12px;
+            color: #00ff00;
+            font-weight: bold;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            list-style: none;
+        }
+        
+        .nav-links a {
+            color: #00ff00;
+            text-decoration: none;
+            font-size: 10px;
+            padding: 5px 10px;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+        
+        .nav-links a:hover {
+            border: 2px solid #00ff00;
+            color: #00ff00;
+            box-shadow: 0 0 10px #00ff00;
+        }
+        
+        .nav-links a.active {
+            border: 2px solid #00ff00;
+            color: #00ff00;
+            box-shadow: 0 0 10px #00ff00;
+        }
+        
+        body {
+            padding-top: 70px;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-brand">resizer</div>
+        <ul class="nav-links">
+            <li><a href="/" class="nav-link">Home</a></li>
+            <li><a href="/resize-image" class="nav-link">Resize</a></li>
+        </ul>
+    </nav>
+    <div class="container">
+        <div class="title">Image Resizing</div>
+        <div class="subtitle">Resize and optimize your images</div>
+        
+        <div class="separator"></div>
+        
+        <form class="upload-form" id="uploadForm" action="/resize" method="POST" enctype="multipart/form-data">
+            <div class="file-input-wrapper">
+                <input type="file" name="file" id="fileInput" required accept="image/*">
+            </div>
+            <button type="submit" id="submitBtn">Start Resize</button>
+        </form>
+        
+    </div>
+</body>
+</html>

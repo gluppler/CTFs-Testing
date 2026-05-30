@@ -1,0 +1,1 @@
+Criticalops is a web app used to monitor critical infrastructure in the XYZ region. Users submit tickets to report unusual behavior. Please uncover potential vulnerabilities, and retrieve the hidden flag within the system.

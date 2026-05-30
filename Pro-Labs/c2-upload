@@ -1,0 +1,26 @@
+#!/bin/bash
+# c2-upload <local_file> [remote_path]
+C2="$(dirname "$0")/c2"
+SRC="$1"
+DST="$2"
+
+if [ -z "$SRC" ]; then
+    echo "Usage: c2-upload <local_file> [remote_path]"
+    echo "Uploads file to target via active beacon"
+    exit 1
+fi
+
+if [ ! -f "$SRC" ]; then
+    echo "Error: file not found: $SRC"
+    exit 1
+fi
+
+echo "[*] Uploading: $SRC"
+if [ -n "$DST" ]; then
+    $C2 upload "$SRC" "$DST"
+else
+    $C2 upload "$SRC"
+fi
+echo "[*] Waiting 120s for upload to complete..."
+sleep 120
+$C2 wait 5

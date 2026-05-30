@@ -1,0 +1,1 @@
+BabyTwo is a medium-difficulty Windows machine set in an Active Directory environment. The initial foothold is gained through password guessing and the abuse of Windows logon scripts. Privilege escalation is achieved by exploiting misconfigured Access Control Lists (ACLs) and Group Policy Objects (GPOs).

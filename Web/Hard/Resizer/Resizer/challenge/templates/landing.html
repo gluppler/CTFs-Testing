@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>resizer - Landing</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Press Start 2P', cursive;
+            background: #000000;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #00ff00;
+            overflow-x: hidden;
+            padding-top: 70px;
+        }
+        
+        /* Navigation Bar */
+        nav {
+            background: #000000;
+            border-bottom: 3px solid #00ff00;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 100;
+
+        }
+        
+        .nav-brand {
+            font-size: 12px;
+            color: #00ff00;
+            font-weight: bold;
+        }
+        
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            list-style: none;
+        }
+        
+        .nav-links a {
+            color: #00ff00;
+            text-decoration: none;
+            font-size: 10px;
+            padding: 5px 10px;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+        
+        .nav-links a:hover {
+            border: 2px solid #00ff00;
+            color: #00ff00;
+        }
+        
+        .nav-links a.active {
+            border: 2px solid #00ff00;
+            color: #00ff00;
+        }
+        
+        .container {
+            background: #000000;
+            border: 3px solid #00ff00;
+
+            padding: 50px;
+            max-width: 700px;
+            width: 100%;
+            position: relative;
+            z-index: 2;
+            text-align: center;
+        }
+        
+        .title {
+            font-size: 32px;
+            color: #00ff00;
+            margin-bottom: 15px;
+            animation: flicker 0.15s infinite;
+        }
+        
+        @keyframes flicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+        
+        .subtitle {
+            font-size: 12px;
+            color: #00ff00;
+            margin-bottom: 30px;
+        }
+        
+        .separator {
+            border-top: 2px dashed #00ff00;
+            margin: 20px 0;
+            opacity: 0.5;
+        }
+        
+        .description {
+            color: #00ff00;
+            font-size: 10px;
+            line-height: 1.8;
+            margin: 30px 0;
+            text-align: left;
+            border: 2px solid #00ff00;
+            padding: 20px;
+            background: #000000;
+        }
+        
+        .challenge-box {
+            background: #000000;
+            border: 2px solid #00ff00;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        
+        .challenge-box h3 {
+            color: #00ff00;
+            font-size: 12px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        
+        .challenge-box p {
+            color: #00ff00;
+            font-size: 9px;
+            line-height: 1.6;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            padding: 15px 40px;
+            background: #00ff00;
+            color: #001a1f;
+            border: 3px solid #00ff00;
+            font-size: 14px;
+            font-weight: bold;
+            font-family: 'Press Start 2P', cursive;
+            cursor: pointer;
+            text-decoration: none;
+            text-transform: uppercase;
+            margin-top: 20px;
+            transition: all 0.1s;
+        }
+        
+        .cta-button:hover {
+            background: #00ff00;
+            border-color: #00ff00;
+            transform: scale(1.05);
+        }
+        
+        .cta-button:active {
+            transform: scale(0.98);
+        }
+        
+        .footer-text {
+            color: #00ff00;
+            font-size: 8px;
+            margin-top: 30px;
+            border-top: 1px solid #00ff00;
+            padding-top: 15px;
+        }
+        
+        .pixel-divider {
+            color: #00ff00;
+            font-size: 12px;
+            margin: 15px 0;
+        }
+        
+        .pixel-left {
+            display: none;
+        }
+
+        .pixel-right {
+            display: none;
+        }
+        
+        /* Container hover effect */
+        .container:hover {
+            animation: glow-pulse 0.6s ease-out;
+        }
+        
+        @keyframes glow-pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.95; }
+            100% { opacity: 1; }
+        }
+        
+        /* Button bounce effect */
+        button:hover {
+            animation: button-bounce 0.4s ease-out;
+        }
+        
+        @keyframes button-bounce {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .pixel-mascot {
+            margin: 30px 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .pixel-mascot svg {
+            width: 120px;
+            height: 120px;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-brand">resizer</div>
+        <ul class="nav-links">
+            <li><a href="/" class="nav-link">Home</a></li>
+            <li><a href="/resize-image" class="nav-link">Resize</a></li>
+        </ul>
+    </nav>
+    
+    <div class="container">
+        <div class="title">resizer</div>
+        <div class="subtitle">Image Resizing Service</div>
+        
+        <div class="separator"></div>
+        
+        <div class="description">
+            Upload and resize your images with ease.
+        </div>
+        
+        <div class="pixel-divider">━━━━━━━━━━━━━━━━━━━━</div>
+        
+        <div class="challenge-box">
+            <h3>Simple & Fast</h3>
+            <p>
+                Upload an image, get it resized instantly. That's it.
+            </p>
+        </div>
+        
+        <a href="/resize-image" class="cta-button">Upload Image</a>
+        
+        <div class="footer-text">
+            Image resizing service with retro style.
+        </div>
+    </div>
+    
+    <script>
+        // Set active nav link
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPath = window.location.pathname;
+            document.querySelectorAll('.nav-link').forEach(link => {
+                if (link.getAttribute('href') === currentPath) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

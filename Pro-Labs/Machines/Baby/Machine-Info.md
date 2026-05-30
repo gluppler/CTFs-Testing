@@ -1,0 +1,1 @@
+Baby is an easy difficulty Windows machine that features LDAP enumeration, password spraying and exposed credentials. For privilege escalation, the SeBackupPrivilege is exploited to extract registry hives and the NTDS.dit file. A Pass-the-Hash attack can be performed using the uncovered domain hashes ultimately achieving Administrator access.

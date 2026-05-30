@@ -1,0 +1,30 @@
+#!/bin/bash
+# c2-exec <beacon_id> '<command>' [wait_secs]
+# Reliable beacon/session command execution via tmux
+SESSION="sliver"
+BEACON="$1"
+CMD="$2"
+WAIT="${3:-90}"
+
+[ -z "$BEACON" ] || [ -z "$CMD" ] && { echo "Usage: c2-exec <beacon_id> '<cmd>' [wait]"; exit 1; }
+
+if ! tmux has-session -t "$SESSION" 2>/dev/null; then
+    echo "[!] tmux session '$SESSION' not running. Start: tmux new-session -s $SESSION"
+    exit 1
+fi
+
+# Flush pending, select beacon, send command
+tmux send-keys -t "$SESSION" Enter ; sleep 2
+tmux send-keys -t "$SESSION" "use $BEACON" Enter ; sleep 3
+tmux send-keys -t "$SESSION" -- $CMD
+tmux send-keys -t "$SESSION" Enter
+
+echo "[*] [$BEACON] > $CMD (wait ${WAIT}s)"
+sleep "$WAIT"
+
+echo "=== OUTPUT ==="
+tmux capture-pane -t "$SESSION" -p -S -80 \
+    | perl -pe 's/\e\[[0-9;]*[a-zA-Z]//g; s/\e\][0-9;]*[^\a]*\a//g; s/\r//g' \
+    | grep -v -E '^\s*$|[/\\]amd64|^ {2,}[a-f0-9]{6}|All hackers|Server v|Client v|Welcome|sliver \(.*\) ?>$' \
+    | tail -30
+echo "=== END ==="
