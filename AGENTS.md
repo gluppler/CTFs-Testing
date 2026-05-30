@@ -51,17 +51,21 @@
 | Pwn | pwntools, msf, ghidra | Y | Y | pip/apt/dl |
 | Pwn | mingw-w64 cross-compiler | P | Y | brew/apt |
 | Crypto | sympy, pycryptodome | Y | Y | pip |
-| DB | psql, pg_basebackup | Y | Y | brew libpq / apt |
+| DB | psql, pg_basebackup, etcdctl | Y | Y | brew libpq / apt |
+| Mail | swaks | Y | Y | brew/apt |
 | Browser | wabt, chromedriver | Y | Y | brew |
-| Chain | Sliver client | N | Y | binary |
+| Chain | Sliver client | N | Y | binary (bin/linux/) |
+| Chain | c2 helper | Y | Y | Rust build (tools/c2/) |
+| Chain | ysoserial | Y | Y | Java jar (bin/linux/) |
+| Chain | ilspycmd | Y | Y | dotnet tool --global |
 | Chain | Mimikatz/SharpDPAPI | P | P | win exe/target |
 
 ## Platform Matrix (Y/P/N — pure M2, no VMs/Wine)
-**Solved (6):** Down(L,Y,Y) Data(L,Y,Y) Retro(W,Y,Y) Reset(L,Y,Y) Manage(L,Y,Y) Forgotten(L,Y,Y)
+**Solved (7):** Down(L,Y,Y) Data(L,Y,Y) Retro(W,Y,Y) Reset(L,Y,Y) Manage(L,Y,Y) Forgotten(L,Y,Y) Puppet(W,C,N,Y)
 **Solved (blocked):** VulnEscape(W,N,Y) — BPV Windows-only password decryption
-**Unsolved (solvable):** Baby(W,E,Y,Y) BabyTwo(W,M,Y,Y) RetroTwo(W,E,Y,Y) Lock(W,E,Y,Y) Build(L,E,Y,Y) Delegate(W,M,Y,Y) Job(W,M,Y,Y) Media(W,M,Y,Y) Bamboo(L,M,Y,Y) Phantom(W,M,Y,Y) Sendai(W,M,Y,Y) Shibuya(W,M,Y,Y) Sweep(W,M,Y,Y) VulnCicada(W,M,Y,Y) Watcher(L,M,Y,Y) LustrousTwo(W,H,Y,Y) Race(L,H,Y,Y) Redelegate(W,H,Y,Y) Rainbow(W,M,Y,Y) Ten(L,H,Y,Y) Zero(L,I,Y,Y) Atlas(W,H,Y,Y) Breach(W,M,Y,Y) Bruno(W,M,Y,Y) Dump(L,H,Y,Y) JobTwo(W,H,Y,Y) Slonik(L,M,Y,Y) Store(L,H,Y,Y)
+**Unsolved (solvable):** Baby(W,E,Y,Y) BabyTwo(W,M,Y,Y) RetroTwo(W,E,Y,Y) Lock(W,E,Y,Y) Build(L,E,Y,Y) Delegate(W,M,Y,Y) Job(W,M,Y,Y) Media(W,M,Y,Y) Bamboo(L,M,Y,Y) Phantom(W,M,Y,Y) Sendai(W,M,Y,Y) Shibuya(W,M,Y,Y) Sweep(W,M,Y,Y) VulnCicada(W,M,Y,Y) Watcher(L,M,Y,Y) Breach(W,M,Y,Y) Bruno(W,M,Y,Y) Slonik(L,M,Y,Y) LustrousTwo(W,H,Y,Y) Race(L,H,Y,Y) Redelegate(W,H,Y,Y) Rainbow(W,M,Y,Y) Ten(L,H,Y,Y) Zero(L,I,Y,Y) Atlas(W,H,Y,Y) Dump(L,H,Y,Y) JobTwo(W,H,Y,Y) Store(L,H,Y,Y)
 **Unsolved (blocked):** Reaper(W,I,N,P) (kernel exploit needs Windows VM + WinDbg), ReaperTwo(W,I,N,P) (browser + kernel exploit, kernel stage same blocker)
-**Chain:** Puppet(W,C,N,Y) (Sliver client Linux-only binary)
+**Chain:** Mythical(?,?,?) (not started)
 
 ## Machine Strategy Tiers
 - **Tier 1 (Easy/fast)**: Baby, BabyTwo, RetroTwo, Lock, Build
@@ -84,13 +88,59 @@
 11. Post-solve: writeup → pipeline → wiki index+log → AGENTS patterns table
 12. Token-aware: read companion files on demand, don't bloat context
 
+## Platform Directory Organization
+```
+Pro-Labs/bin/
+├── macos/               # macOS ARM64 host binaries (c2)
+└── linux/               # Linux x86_64 host binaries
+    ├── c2               # Sliver tmux helper (compiled from Puppet/tools/c2/)
+    ├── sliver-client    # C2 framework binary
+    └── ysoserial-all.jar  # Java deserialization toolkit
+Pro-Labs/Puppet/
+├── c2                   # Platform-detecting shim → bin/{macos,linux}/c2
+├── c2-*                 # Sliver automation scripts (cross-platform bash)
+├── payloads/            # Windows artifacts deployed TO targets
+│   ├── beacon_launcher.dll, bl_renamed.dll, payload.dll
+│   ├── uac_bypass.exe, mimikatz.exe, mimikatz_temp/
+│   ├── CVE-2021-1675.ps1, CVE-2021-34527.ps1, getkeys.ps1
+│   ├── check.bat, rp.bat, run_pp.bat
+│   └── BANKING$.ccache
+├── source/              # Buildable source (UAC-BOF-Bonanza, PrivescCheck, CVE-2021-34527)
+├── tools/c2/            # Rust source for c2 helper (builds on any platform)
+└── docs/                # Writeups, flags, notes, sliver cheatsheet
+```
+
+## PATH Setup (Arch Linux)
+```bash
+export PATH="$PATH:/home/gluppler/.dotnet/tools:/home/gluppler/Downloads/CTFs-Testing/Pro-Labs/bin/linux"
+```
+
 ## Reference File Index (read on demand, NOT auto-loaded)
 ```
-Pro-Labs/tools.md     — Full tool inventory, categories, install commands per platform
-Pro-Labs/platforms.md — Per-machine Y/P/N breakdown with rationale + notes
-Pro-Labs/patterns.md  — Attack patterns from all solved + unsolved machines (compiled from our solves)
-Pro-Labs/strategy.md  — Per-machine notes, attack sequences, common pitfalls (compiled from our solves)
+Pro-Labs/tools.md       — Full tool inventory, categories, install commands per platform
+Pro-Labs/platforms.md   — Per-machine Y/P/N breakdown with rationale + notes
+Pro-Labs/patterns.md    — Attack patterns from all solved + unsolved machines (compiled from our solves)
+Pro-Labs/strategy.md    — Per-machine notes, attack sequences, common pitfalls (compiled from our solves)
+AGENTS.md               — This file: core principles, platform org, tool audit, quick reference
 ```
+
+## Installed Tool Audit (Arch Linux, Pro-Labs ready)
+| Status | Tool | Machine(s) | Install |
+|--------|------|-----------|---------|
+| ✅ | nmap, curl, python3, john, hashcat | all | pacman/pip |
+| ✅ | nxc, impacket, certipy, bloodhound, bloodyAD, evil-winrm | Baby→VulnCicada | pip (venv) |
+| ✅ | kerbrute, ldapsearch, smbclient | Baby→Shibuya | yay/pacman |
+| ✅ | xfreerdp3, responder | Lock→VulnEscape | pacman @ /usr/bin/xfreerdp3 |
+| ✅ | sshpass, tmux, socat, chisel, proxychains, pspy | Build→Watcher | pacman/yay |
+| ✅ | ffuf, feroxbuster, wfuzz, gobuster, squidscan | web targets | yay/pip |
+| ✅ | pwntools, msfconsole/venom, ghidra, nasm, mingw-w64 | Rainbow→Reaper | pip/pacman |
+| ✅ | psql, pg_basebackup, mysql, etcdctl | Slonik→Ten | pacman |
+| ✅ | Java (26), maven, dotnet-sdk (10.0) | Atlas→JobTwo | pacman |
+| ✅ | ilspycmd, ysoserial-all.jar, swaks | Atlas→Job | dotnet/dl/pacman |
+| ✅ | crunch, wabt, chromedriver, keepassxc, tcpdump | Phantom→Store | pacman/yay |
+| ✅ | Sliver client, c2 (Linux build) | Puppet | bin/linux/ |
+| 🚫 | ropper | Reaper | blocked on Python 3.14 |
+| 🔲 | rockyou.txt | cracking | download when needed |
 
 ## Quick Reference
 ```
@@ -104,4 +154,8 @@ responder -I tun0 -v
 java -jar beanshooter.jar tonka exec <target> 2222 "<cmd>"
 hashcat -m 10900 hash.txt /usr/share/wordlists/rockyou.txt  # Grafana PBKDF2
 john --wordlist=rockyou.txt hash.txt                         # SSH/NT/netntlmv2
+xfreerdp3 /v:<target> /u:<user> /p:<pass> /dynamic-resolution +clipboard
+swaks --to user@domain --from a@b --server <smtp_target> --body "..." --attach exploit.doc
+etcdctl --endpoints=http://<target>:2379 get / --prefix
+java -jar ysoserial-all.jar CommonsCollections6 'cmd' > payload.bin
 ```

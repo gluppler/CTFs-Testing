@@ -1,7 +1,0 @@
-Machines
-PUPPET-PM01
-Linux
-PUPPET-DC01
-Windows
-PUPPET-FILE01
-Windows
