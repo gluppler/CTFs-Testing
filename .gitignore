@@ -40,6 +40,7 @@ Cargo.lock
 # Large binaries (download on demand)
 sliver-client_linux
 sliver-server_linux
+ysoserial-all.jar
 
 # Environment config
 .env
