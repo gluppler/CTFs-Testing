@@ -1,0 +1,60 @@
+Questionnaire
+7th October 2022 / Document No.
+D22.102.253
+Prepared By: w3th4nds
+Challenge Author(s): w3th4nds
+Difficulty: Very Easy
+Classification: Official
+
+Synopsis
+Questionnaire is a very easy difficulty challenge that teaches the basics of C, protections of a
+binary and Buffer Overflows
+
+Skills Required
+N/A
+
+Skills Learned
+Basic C syntax
+Buffer Overflow
+
+Enumeration
+The given downloadable contains 2 files:
+test.c
+test
+
+Taking a look at test.c
+#include <stdio.h>
+#include <stdlib.h>
+/*
+This is not the challenge, just a template to answer the questions.
+To get the flag, answer the questions.
+There is no bug in the questionnaire.
+*/
+
+void gg(){
+system("cat flag.txt");
+}
+void vuln(){
+char buffer[0x20] = {0};
+fprintf(stdout, "\nEnter payload here: ");
+fgets(buffer, 0x100, stdin);
+}
+void main(){
+vuln();
+}
+
+This is not the binary we have to pwn. Actually, there is no binary to pwn at all this time. All the
+users have to do is answer the questions to get the flag. Connecting to the remote instance:
+
+This is a simple questionnaire that teaches some basic stuff and then asks the user to answer
+some questions.
+All the questions are about the test binary. As we can see, it is a 64-bit ELF. Once we answer
+correctly, we proceed to the next question.
+
+After we answer correctly, we are prompted to the next question. If the answer is wrong, the
+question is repeated.
+
+There are 3 sections that teach the users and 10 question in total. All of the questions can be
+answered just from the questionnaire itself and the test.c .
+
+
