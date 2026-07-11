@@ -1,8 +1,0 @@
-node_modules
-npm-debug.log
-uploads
-.env
-.git
-*_image.tar.gz
-dist
-solve
